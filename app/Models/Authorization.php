@@ -22,23 +22,27 @@ class Authorization extends Model
 		'fk_user_id',
 	];
 
+	
+	protected $with = [
+		'users',
+	];
+
 	/**
 	 * Login to platform.
 	 */
-	public function createSession(User $userDetails)
+	public function createSession(User $userDetails, string $sessionToken)
 	{
 		try {
-			$token = Str::random(255);
+			
 			\DB::beginTransaction();
 			$this->destroyAllSessions($userDetails->id);
 
 			self::create([
 				'fk_user_id' 				=> $userDetails->id,
 				'expired_at'  				=> Carbon::now()->addHours(3),
-				'token'						=> $token
+				'token'						=> $sessionToken
 			]);
 
-			// \Session::put('user.cookie.session', $token);
 			\DB::commit();
 		} catch (\Throwable $th) {
 			var_dump($th->getMessage());die();
@@ -51,13 +55,11 @@ class Authorization extends Model
 	 * Check if user session exists
 	 * @return  Authorization
 	 */
-	public function checkIfUserSessionExists(): Authorization
+	public function checkIfUserSessionExists(string $sessionToken): Authorization
 	{
-		// $token = \Session::all()['user']['cookie']['session'] ?? '';
-
 		try {
 			$userSession = self::select()
-				->where('token', $token)
+				->where('token', $sessionToken)
 				->where('expired_at', '>', Carbon::now())
 				->get()
 				->first();

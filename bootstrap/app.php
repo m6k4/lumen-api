@@ -76,7 +76,6 @@ $app->middleware([
     \Illuminate\Session\Middleware\StartSession::class
 ]);
 
-
 // $app->middleware([
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);

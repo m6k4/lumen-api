@@ -7,6 +7,7 @@ use App\Models\Authorization;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 /**
 * AuthorizationController
@@ -47,12 +48,15 @@ class AuthorizationController extends Controller
     public function loginToPlatform(Request $request): JsonResponse
     {
         $this->success();
-        $request->session()->put('name', 'Lumen-Session');
-        var_dump($request->session()->all());die();
-        // $this->loggedUserSessionDetails = $this->user->where('email', $request->email)->first();
-        // $this->checkPassword($request->password);
 
-        // $this->authorization->createSession($this->loggedUserSessionDetails);     
+        $sessionToken = Str::random(255);
+        $request->session()->put('userSession', $sessionToken);
+        $request->session()->save();
+
+        $this->loggedUserSessionDetails = $this->user->where('email', $request->email)->first();
+        $this->checkPassword($request->password);
+
+        $this->authorization->createSession($this->loggedUserSessionDetails, $sessionToken);     
 
         return $this->output();
     }
@@ -81,10 +85,11 @@ class AuthorizationController extends Controller
     public function checkIfUserSessionExists(Request $request): JsonResponse
     {
         $this->success();
-        var_dump($request->session()->all());die();
-        // $this->authorization->checkIfUserSessionExists();
+
+        $sessionToken = $request->session()->get('userSession');
+        $this->authorization->checkIfUserSessionExists($sessionToken);
         
-        // $this->response['data'] = \SUser::getUserData();
+        $this->response['data'] = \SUser::getUserData();
         
         return $this->output();
     }
