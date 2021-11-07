@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
@@ -12,12 +13,23 @@ class UserController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        private User $user
+        ) {}
 
-    public function getList(Request $request) {
-        return response()->json(User::all());
+    /**
+    * Create user.
+    *
+    * @param CreateUserPost $request
+    * @return JsonResponse
+    */
+    public function createUser(Request $request): JsonResponse
+    {
+        // var_dump($request->all());die();
+        $this->success();
+        
+        $this->response['data'] = $this->user->createUser($request->only('name', 'email', 'password')); 
+
+        return $this->output();
     }
 }

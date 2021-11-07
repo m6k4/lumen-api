@@ -14,5 +14,13 @@
 */
 
 $router->group(['prefix' => 'api'], function () use ($router) {
-    $router->get('users',  ['uses' => 'UserController@getList']);
+
+    // User
+    $router->post('user/createUser',                      ['uses' => 'UserController@createUser']);
+
+    // Authorization
+    $router->post('authorization/loginToPlatform',        ['uses' => 'AuthorizationController@loginToPlatform']);
+    $router->get('authorization/checkIfUserSessionExists',['uses' => 'AuthorizationController@checkIfUserSessionExists']);
+    $router->delete('authorization/logoutFromPlatform',   ['uses' => 'AuthorizationController@logoutFromPlatform']);
+
   });

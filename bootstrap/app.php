@@ -23,7 +23,7 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
-// $app->withFacades();
+$app->withFacades();
 
 $app->withEloquent();
 
@@ -72,6 +72,11 @@ $app->configure('app');
 |
 */
 
+$app->middleware([
+    \Illuminate\Session\Middleware\StartSession::class
+]);
+
+
 // $app->middleware([
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
@@ -105,6 +110,21 @@ $app->configure('app');
 | can respond to, as well as the controllers that may handle them.
 |
 */
+$app->singleton(Illuminate\Session\SessionManager::class, function () use ($app) {
+    return $app->loadComponent('session', Illuminate\Session\SessionServiceProvider::class, 'session');
+});
+
+$app->singleton('session.store', function () use ($app) {
+    return $app->loadComponent('session', Illuminate\Session\SessionServiceProvider::class, 'session.store');
+});
+
+if (!class_exists('Exceptions')) {
+    class_alias('App\Exceptions\Custom\CustomExceptions', 'Exceptions');
+}
+
+if (!class_exists('SUser')) {
+    class_alias('App\Services\UserData', 'SUser');
+}
 
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
